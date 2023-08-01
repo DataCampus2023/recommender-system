@@ -12,38 +12,25 @@ from builder import PandasGraphBuilder
 def movielens_graph_building(args):
     directory = args.directory
 
-    # movies = []
-    # with open('./dataset/movielens/movies.dat', encoding='latin1') as f:
-    #     for l in f:
-    #         id_, title, genres = l.strip().split('::')
-    #         genres_set = set(genres.split('|'))
-
-    #         # extract year
-    #         assert re.match(r'.*\([0-9]{4}\)$', title)
-    #         year = title[-5:-1]
-    #         title = title[:-6].strip()
-
-    #         data = {'movie_id': int(id_), 'title': title, 'year': year, 'genre': genres.split("|")}
-    #         for g in genres_set:
-    #             data[g] = True
-    #         movies.append(data)
-    # movies = pd.DataFrame(movies).astype({'year': 'category'})
     movies = []
-    with open('./dataset/movielens/movies.dat', encoding='latin1') as f:
+    with open(os.path.join(directory, 'movies.dat'), encoding='latin1') as f:
         for l in f:
             id_, title, genres = l.strip().split('::')
+            genres_set = set(genres.split('|'))
 
             # extract year
             assert re.match(r'.*\([0-9]{4}\)$', title)
             year = title[-5:-1]
             title = title[:-6].strip()
 
-            data = {'movie_id': int(id_), 'title': title, 'year': year, 'genre': genres}
+            data = {'movie_id': int(id_), 'title': title, 'year': year, 'genre': genres.split("|")}
+            for g in genres_set:
+                data[g] = True
             movies.append(data)
     movies = pd.DataFrame(movies).astype({'year': 'category'})
 
     ratings = []
-    with open('./dataset/movielens/ratings.dat', encoding='latin1') as f:
+    with open(os.path.join(directory, 'ratings.dat'), encoding='latin1') as f:
         for l in f:
             user_id, movie_id, rating, timestamp = [int(_) for _ in l.split('::')]
             ratings.append({
@@ -51,7 +38,7 @@ def movielens_graph_building(args):
                 'movie_id': movie_id,
                 'rating': rating,
                 'timestamp': timestamp,
-                })
+            })
     ratings = pd.DataFrame(ratings)
 
     merged_ratings = pd.merge(ratings, movies, on=['movie_id'])
