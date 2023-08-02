@@ -2,13 +2,13 @@ from collections import Counter
 
 import numpy as np
 
-from .. import backend as F
-from .. import convert
-from .. import transform
-from .randomwalks import random_walk
-from .neighbor import select_topk
-from ..base import EID
-from .. import utils
+from dgl import backend as F
+from dgl import convert
+from dgl import transforms
+from dgl.sampling.randomwalks import random_walk
+from dgl.sampling.neighbor import select_topk
+from dgl.base import EID
+from dgl import utils
 
 
 class RandomWalkNeighborSampler(object):
@@ -98,7 +98,7 @@ class RandomWalkNeighborSampler(object):
             {(self.ntype, '_E', self.ntype): (src, dst)},  # data dict
             {self.ntype: self.G.number_of_nodes(self.ntype)}  # num node dict
         )
-        neighbor_graph = transform.to_simple(neighbor_graph, return_counts=self.weight_column)
+        neighbor_graph = transforms.to_simple(neighbor_graph, return_counts=self.weight_column)
         counts = neighbor_graph.edata[self.weight_column]
         neighbor_graph = select_topk(neighbor_graph, self.num_neighbors, self.weight_column)
         selected_counts = F.gather_row(counts, neighbor_graph.edata[EID])
